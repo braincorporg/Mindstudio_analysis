@@ -37,7 +37,7 @@
 #     base64_encoded_graph = base64.b64encode(img_buffer.getvalue()).decode()
 #     return base64_encoded_graph
 
-from fastapi import FastAPI, HTTPException, Body
+from fastapi import FastAPI, HTTPException, Request
 import pandas as pd
 import base64
 from io import BytesIO
@@ -48,8 +48,12 @@ import io
 app = FastAPI()
 
 @app.post("/process_excel/")
-async def process_excel(url: str, python_script: str = Body(...)):
+async def process_excel(request: Request):
     try:
+        data = await request.json()
+        url = data['url']
+        python_script = data['python_script']
+
         # Download the Excel file
         df = pd.read_excel(url)
 
@@ -58,8 +62,6 @@ async def process_excel(url: str, python_script: str = Body(...)):
         with redirect_stdout(print_output):
 
             # Execute the Python script
-            # The script should use 'df' to access the dataframe
-            # and should return a matplotlib figure
             local_vars = {}
             exec(python_script, {'df': df, 'plt': plt}, local_vars)
             fig = local_vars.get('fig')
