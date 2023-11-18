@@ -85,16 +85,20 @@ async def process_excel(request: Request):
 @app.post("/excel_info/")
 async def excel_info(url: str):
     try:
-        # Download the Excel file
+        # Reading the Excel file
         df = pd.read_excel(url)
 
-        # Redirect the output of df.info() to a string
-        info_output = io.StringIO()
-        with redirect_stdout(info_output):
-            df.info()
+        # Getting DataFrame info and the first row
+        df_info = df.info()
+        first_row = df.iloc[0].to_dict()  # Convert the first row to a dictionary
 
-        return {
-            "df_info": info_output.getvalue()
+        # Preparing the response
+        response = {
+            "df_info": str(df_info),  # DataFrame info as a string
+            "first_row": first_row    # First row of the DataFrame
         }
+
+        return response
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
