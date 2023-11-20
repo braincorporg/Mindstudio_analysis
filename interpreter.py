@@ -89,18 +89,22 @@ async def excel_info(url: str):
         # Download the Excel file
         df = pd.read_excel(url)
 
-        # Redirect the output of df.info() to a string
-        info_output = io.StringIO()
-        with redirect_stdout(info_output):
-            df.info()
+        # Manually construct the DataFrame information
+        df_info = {
+            "shape": df.shape,
+            "columns": {col: {"non_null_count": df[col].notnull().sum(), 
+                              "dtype": str(df[col].dtype)} 
+                        for col in df.columns}
+        }
 
         # Get the first row of the DataFrame
         first_row = df.iloc[0].to_dict()
 
         return {
-            "df_info": info_output.getvalue(),
+            "df_info": df_info,
             "first_row": first_row
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
