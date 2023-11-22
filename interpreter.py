@@ -57,7 +57,7 @@ async def process_excel(request: Request):
 
         # Download the Excel file
         df = pd.read_excel(url)
-
+        df.head()
         # Redirect print statements to a variable
         print_output = io.StringIO()
         with redirect_stdout(print_output):
