@@ -7,3 +7,4 @@ openpyxl
 scipy
 seaborn
 scikit-learn
+statsmodels
