@@ -53,6 +53,7 @@ async def process_excel(request: Request):
         data = await request.json()
         url = data['url']
         python_script = data['python_script']
+        print(python_script)
 
         # Download the Excel file
         df = pd.read_excel(url)
