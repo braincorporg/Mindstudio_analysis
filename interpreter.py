@@ -58,6 +58,7 @@ async def process_excel(request: Request):
         # Download the Excel file
         df = pd.read_excel(url)
         print(df.head())
+
         # Redirect print statements to a variable
         print_output = io.StringIO()
         with redirect_stdout(print_output):
@@ -65,23 +66,26 @@ async def process_excel(request: Request):
             # Execute the Python script
             local_vars = {}
             exec(python_script, {'df': df, 'plt': plt}, local_vars)
-            fig = local_vars.get('fig')
+            figures = local_vars.get('figures')
 
-            if not fig:
-                raise ValueError("No matplotlib figure found in the executed script.")
+            if not figures or not isinstance(figures, list):
+                raise ValueError("No list of matplotlib figures found in the executed script.")
 
-            # Convert the figure to base64
-            buf = BytesIO()
-            fig.savefig(buf, format='png', bbox_inches='tight')
-            buf.seek(0)
-            graph_base64 = base64.b64encode(buf.read()).decode()
+            graphs_base64 = []
+            for fig in figures:
+                buf = BytesIO()
+                fig.savefig(buf, format='png', bbox_inches='tight')
+                buf.seek(0)
+                graph_base64 = base64.b64encode(buf.read()).decode()
+                graphs_base64.append(graph_base64)
 
         return {
             "message": print_output.getvalue(),
-            "graph": graph_base64
+            "graphs": graphs_base64
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 
