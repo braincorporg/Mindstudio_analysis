@@ -8,3 +8,4 @@ scipy
 seaborn
 scikit-learn
 statsmodels
+folium
